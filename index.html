@@ -13,21 +13,28 @@
       flex-direction: column; 
       align-items: center; 
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
       background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
       font-family: 'Baloo 2', cursive;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     h1 {
       color: #ff66b2;
       text-shadow: 2px 2px #fff;
       margin-bottom: 15px;
+      text-align: center;
     }
 
+    /* RESPONSIVE – el cubo se adapta a cualquier pantalla */
     .scene {
-      width: 220px;
-      height: 220px;
+      --size: min(260px, 70vw);
+      --t: calc(var(--size) / 2);
+
+      width: var(--size);
+      height: var(--size);
       perspective: 800px;
       position: relative;
     }
@@ -42,8 +49,8 @@
 
     .face {
       position: absolute;
-      width: 220px;
-      height: 220px;
+      width: 100%;
+      height: 100%;
       backface-visibility: hidden;
       background-size: cover;
       background-position: center;
@@ -51,18 +58,20 @@
       box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
     }
 
-    .front  { transform: rotateY(0deg) translateZ(110px); }
-    .back   { transform: rotateY(180deg) translateZ(110px); }
-    .right  { transform: rotateY(90deg) translateZ(110px); }
-    .left   { transform: rotateY(-90deg) translateZ(110px); }
-    .top    { transform: rotateX(90deg) translateZ(110px); }
-    .bottom { transform: rotateX(-90deg) translateZ(110px); }
+    /* Las 6 caras correctas */
+    .front  { transform: rotateY(  0deg) translateZ(var(--t)); }
+    .back   { transform: rotateY(180deg) translateZ(var(--t)); }
+    .right  { transform: rotateY( 90deg) translateZ(var(--t)); }
+    .left   { transform: rotateY(-90deg) translateZ(var(--t)); }
+    .top    { transform: rotateX( 90deg) translateZ(var(--t)); }
+    .bottom { transform: rotateX(-90deg) translateZ(var(--t)); }
 
     .hint {
       margin-top: 25px;
-      font-size: 1.2em;
-      color: #666;
+      font-size: 1.1em;
+      color: #555;
       animation: parpadeo 2s infinite;
+      text-align: center;
     }
 
     @keyframes parpadeo {
@@ -70,7 +79,6 @@
       50% { opacity: 0.5; }
     }
 
-    /* Efecto de brillo */
     .flash {
       position: absolute;
       top: 0; left: 0;
@@ -94,18 +102,20 @@
 
   <div class="scene" id="scene">
     <div id="cube" class="cube">
+
+      <!-- 6 CARAS DEL CUBO -->
       <div class="face front"  style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.06 PM.jpeg');"></div>
       <div class="face back"   style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.07 PM (1).jpeg');"></div>
       <div class="face right"  style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.07 PM.jpeg');"></div>
       <div class="face left"   style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.10 PM (1).jpeg');"></div>
       <div class="face top"    style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.10 PM (2).jpeg');"></div>
       <div class="face bottom" style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.10 PM.jpeg');"></div>
+
     </div>
   </div>
 
-  <p class="hint">Presioná la <strong>barra espaciadora</strong> para cambiar de cara 🌟</p>
+  <p class="hint">Tocá la pantalla o presioná <strong>Espacio</strong> para girar ✨</p>
 
-  <!-- Sonido divertido (puede ser un pop, campanita, etc.) -->
   <audio id="sound" src="WhatsApp Audio 2025-11-25 at 6.34.06 PM.mpeg" preload="auto"></audio>
 
   <script>
@@ -113,34 +123,20 @@
     const scene = document.getElementById('scene');
     const sound = document.getElementById('sound');
 
-    // Orden de aparición de las caras
     const ordenCaras = ['top', 'back', 'right', 'front', 'bottom', 'left'];
     let indice = 0;
 
     function mostrarCara(cara) {
       switch (cara) {
-        case 'front':
-          cube.style.transform = 'rotateX(0deg) rotateY(0deg)';
-          break;
-        case 'back':
-          cube.style.transform = 'rotateY(180deg)';
-          break;
-        case 'right':
-          cube.style.transform = 'rotateY(-90deg)';
-          break;
-        case 'left':
-          cube.style.transform = 'rotateY(90deg)';
-          break;
-        case 'top':
-          cube.style.transform = 'rotateX(-90deg)';
-          break;
-        case 'bottom':
-          cube.style.transform = 'rotateX(90deg)';
-          break;
+        case 'front':  cube.style.transform = 'rotateX(0deg) rotateY(0deg)'; break;
+        case 'back':   cube.style.transform = 'rotateY(180deg)'; break;
+        case 'right':  cube.style.transform = 'rotateY(-90deg)'; break;
+        case 'left':   cube.style.transform = 'rotateY(90deg)'; break;
+        case 'top':    cube.style.transform = 'rotateX(-90deg)'; break;
+        case 'bottom': cube.style.transform = 'rotateX(90deg)'; break;
       }
     }
 
-    // Efecto de brillo
     function flashEffect() {
       const flash = document.createElement('div');
       flash.classList.add('flash');
@@ -148,20 +144,28 @@
       setTimeout(() => flash.remove(), 600);
     }
 
-    // Evento de teclado
+    function avanzar() {
+      const caraActual = ordenCaras[indice];
+      mostrarCara(caraActual);
+
+      sound.currentTime = 0;
+      sound.play();
+      flashEffect();
+
+      indice = (indice + 1) % ordenCaras.length;
+    }
+
     document.addEventListener('keydown', (event) => {
       if (event.code === 'Space') {
         event.preventDefault();
-        const caraActual = ordenCaras[indice];
-        mostrarCara(caraActual);
-
-        // Efectos
-        sound.currentTime = 0;
-        sound.play();
-        flashEffect();
-
-        indice = (indice + 1) % ordenCaras.length;
+        avanzar();
       }
+    });
+
+    scene.addEventListener('click', avanzar);
+    scene.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      avanzar();
     });
   </script>
 </body>
