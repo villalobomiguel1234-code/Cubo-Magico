@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cubo Mágico 3D</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&display=swap');
+
+    body { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      font-family: 'Baloo 2', cursive;
+    }
+
+    h1 {
+      color: #ff66b2;
+      text-shadow: 2px 2px #fff;
+      margin-bottom: 15px;
+    }
+
+    .scene {
+      width: 220px;
+      height: 220px;
+      perspective: 800px;
+      position: relative;
+    }
+
+    .cube {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s ease-in-out;
+    }
+
+    .face {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      backface-visibility: hidden;
+      background-size: cover;
+      background-position: center;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .front  { transform: rotateY(0deg) translateZ(110px); }
+    .back   { transform: rotateY(180deg) translateZ(110px); }
+    .right  { transform: rotateY(90deg) translateZ(110px); }
+    .left   { transform: rotateY(-90deg) translateZ(110px); }
+    .top    { transform: rotateX(90deg) translateZ(110px); }
+    .bottom { transform: rotateX(-90deg) translateZ(110px); }
+
+    .hint {
+      margin-top: 25px;
+      font-size: 1.2em;
+      color: #666;
+      animation: parpadeo 2s infinite;
+    }
+
+    @keyframes parpadeo {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Efecto de brillo */
+    .flash {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.8), transparent 70%);
+      opacity: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: flash 0.6s ease-out;
+    }
+
+    @keyframes flash {
+      0% { opacity: 1; transform: scale(0.3); }
+      100% { opacity: 0; transform: scale(1.5); }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🧊 Cubo Mágico</h1>
+
+  <div class="scene" id="scene">
+    <div id="cube" class="cube">
+      <div class="face front"  style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.06 PM.jpeg');"></div>
+      <div class="face back"   style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.07 PM (1).jpeg');"></div>
+      <div class="face right"  style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.07 PM.jpeg');"></div>
+      <div class="face left"   style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.10 PM (1).jpeg');"></div>
+      <div class="face top"    style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.10 PM (2).jpeg');"></div>
+      <div class="face bottom" style="background-image:url('WhatsApp Image 2025-11-25 at 6.37.10 PM.jpeg');"></div>
+    </div>
+  </div>
+
+  <p class="hint">Presioná la <strong>barra espaciadora</strong> para cambiar de cara 🌟</p>
+
+  <!-- Sonido divertido (puede ser un pop, campanita, etc.) -->
+  <audio id="sound" src="WhatsApp Audio 2025-11-25 at 6.34.06 PM.mpeg" preload="auto"></audio>
+
+  <script>
+    const cube = document.getElementById('cube');
+    const scene = document.getElementById('scene');
+    const sound = document.getElementById('sound');
+
+    // Orden de aparición de las caras
+    const ordenCaras = ['top', 'back', 'right', 'front', 'bottom', 'left'];
+    let indice = 0;
+
+    function mostrarCara(cara) {
+      switch (cara) {
+        case 'front':
+          cube.style.transform = 'rotateX(0deg) rotateY(0deg)';
+          break;
+        case 'back':
+          cube.style.transform = 'rotateY(180deg)';
+          break;
+        case 'right':
+          cube.style.transform = 'rotateY(-90deg)';
+          break;
+        case 'left':
+          cube.style.transform = 'rotateY(90deg)';
+          break;
+        case 'top':
+          cube.style.transform = 'rotateX(-90deg)';
+          break;
+        case 'bottom':
+          cube.style.transform = 'rotateX(90deg)';
+          break;
+      }
+    }
+
+    // Efecto de brillo
+    function flashEffect() {
+      const flash = document.createElement('div');
+      flash.classList.add('flash');
+      scene.appendChild(flash);
+      setTimeout(() => flash.remove(), 600);
+    }
+
+    // Evento de teclado
+    document.addEventListener('keydown', (event) => {
+      if (event.code === 'Space') {
+        event.preventDefault();
+        const caraActual = ordenCaras[indice];
+        mostrarCara(caraActual);
+
+        // Efectos
+        sound.currentTime = 0;
+        sound.play();
+        flashEffect();
+
+        indice = (indice + 1) % ordenCaras.length;
+      }
+    });
+  </script>
+</body>
+</html>
